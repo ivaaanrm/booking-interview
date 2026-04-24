@@ -77,7 +77,14 @@
           "name": "List my reservations",
           "request": {
             "method": "GET",
-            "url": "{{base_url}}/reservations"
+            "url": {
+              "raw": "{{base_url}}/reservations",
+              "host": ["{{base_url}}"],
+              "path": ["reservations"],
+              "query": [
+                { "key": "status", "value": "PENDIENTE", "description": "Filtrar por estado: PENDIENTE, ACEPTADO, DENEGADO, EXPIRADO", "disabled": true }
+              ]
+            }
           }
         },
         {
@@ -211,7 +218,14 @@
           "name": "List ALL reservations",
           "request": {
             "method": "GET",
-            "url": "{{base_url}}/reservations"
+            "url": {
+              "raw": "{{base_url}}/reservations",
+              "host": ["{{base_url}}"],
+              "path": ["reservations"],
+              "query": [
+                { "key": "status", "value": "PENDIENTE", "description": "Filtrar por estado: PENDIENTE, ACEPTADO, DENEGADO, EXPIRADO", "disabled": true }
+              ]
+            }
           }
         },
         {

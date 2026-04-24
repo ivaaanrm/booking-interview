@@ -190,6 +190,106 @@ class BookingApiTests(APITestCase):
         ]
         self.assertEqual(matching_segments[0]["remaining_capacity"], 2)
 
+    def test_worker_blocked_by_accepted_reservation(self):
+        Reservation.objects.create(
+            user=self.other_worker,
+            resource=self.room,
+            status=Reservation.Status.ACEPTADO,
+            start_at=self._dt(10),
+            end_at=self._dt(12),
+        )
+        client = APIClient()
+        client.force_authenticate(user=self.worker)
+
+        response = client.post(
+            "/reservations",
+            {
+                "resource_id": self.room.id,
+                "start_at": self._dt(11).isoformat(),
+                "end_at": self._dt(13).isoformat(),
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("non_field_errors", response.data)
+
+    def test_responsable_blocked_by_accepted_reservation(self):
+        Reservation.objects.create(
+            user=self.worker,
+            resource=self.room,
+            status=Reservation.Status.ACEPTADO,
+            start_at=self._dt(10),
+            end_at=self._dt(12),
+        )
+        client = APIClient()
+        client.force_authenticate(user=self.manager)
+
+        response = client.post(
+            "/reservations",
+            {
+                "resource_id": self.room.id,
+                "start_at": self._dt(10).isoformat(),
+                "end_at": self._dt(12).isoformat(),
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("non_field_errors", response.data)
+
+    def test_shared_room_blocks_when_at_full_capacity(self):
+        Reservation.objects.create(
+            user=self.other_worker,
+            resource=self.shared_room,
+            status=Reservation.Status.ACEPTADO,
+            start_at=self._dt(10),
+            end_at=self._dt(12),
+            quantity=5,
+        )
+        client = APIClient()
+        client.force_authenticate(user=self.worker)
+
+        response = client.post(
+            "/reservations",
+            {
+                "resource_id": self.shared_room.id,
+                "start_at": self._dt(10).isoformat(),
+                "end_at": self._dt(11).isoformat(),
+                "quantity": 1,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("quantity", response.data)
+
+    def test_vehicle_blocked_when_already_booked_for_day(self):
+        day_start = timezone.make_aware(datetime(2026, 4, 25, 0, 0))
+        day_end = timezone.make_aware(datetime(2026, 4, 26, 0, 0))
+        Reservation.objects.create(
+            user=self.other_worker,
+            resource=self.vehicle,
+            status=Reservation.Status.ACEPTADO,
+            start_at=day_start,
+            end_at=day_end,
+        )
+        client = APIClient()
+        client.force_authenticate(user=self.worker)
+
+        response = client.post(
+            "/reservations",
+            {
+                "resource_id": self.vehicle.id,
+                "start_at": day_start.isoformat(),
+                "end_at": day_end.isoformat(),
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("non_field_errors", response.data)
+
     def test_vehicle_requires_full_day_window(self):
         client = APIClient()
         client.force_authenticate(user=self.worker)
