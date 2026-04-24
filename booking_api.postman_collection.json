@@ -157,7 +157,25 @@
               "mode": "raw",
               "raw": "{\n  \"resource_id\": 1,\n  \"start_at\": \"2026-05-10T10:00:00Z\",\n  \"end_at\": \"2026-05-10T12:00:00Z\"\n}"
             }
-          }
+          },
+          "response": [
+            {
+              "name": "400 — recurso no disponible",
+              "originalRequest": {
+                "method": "POST",
+                "url": "{{base_url}}/reservations",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"resource_id\": 1,\n  \"start_at\": \"2026-05-10T10:00:00Z\",\n  \"end_at\": \"2026-05-10T12:00:00Z\"\n}"
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"non_field_errors\": [\"The resource is not available in the selected time range.\"]\n}"
+            }
+          ]
         },
         {
           "name": "Conflict — shared capacity exceeded (400)",
@@ -169,7 +187,25 @@
               "mode": "raw",
               "raw": "{\n  \"resource_id\": 3,\n  \"start_at\": \"2026-05-10T10:00:00Z\",\n  \"end_at\": \"2026-05-10T12:00:00Z\",\n  \"quantity\": 8\n}"
             }
-          }
+          },
+          "response": [
+            {
+              "name": "400 — aforo compartido superado",
+              "originalRequest": {
+                "method": "POST",
+                "url": "{{base_url}}/reservations",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"resource_id\": 3,\n  \"start_at\": \"2026-05-10T10:00:00Z\",\n  \"end_at\": \"2026-05-10T12:00:00Z\",\n  \"quantity\": 8\n}"
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"quantity\": [\"Requested quantity exceeds the remaining shared capacity.\"]\n}"
+            }
+          ]
         },
         {
           "name": "DAY booking with non-midnight time (400)",
