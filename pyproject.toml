@@ -1,0 +1,14 @@
+[project]
+name = "app2u"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "django-cors-headers>=4.9.0",
+    "django-filter>=25.2",
+    "djangorestframework>=3.17.1",
+    "drf-spectacular>=0.29.0",
+    "gunicorn>=25.3.0",
+    "markdown>=3.10.2",
+]

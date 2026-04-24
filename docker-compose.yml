@@ -1,0 +1,22 @@
+services:
+  web:
+    build: .
+    expose:
+      - "8000"
+    volumes:
+      - static_files:/app/staticfiles
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - static_files:/app/staticfiles:ro
+    depends_on:
+      - web
+    restart: unless-stopped
+
+volumes:
+  static_files:

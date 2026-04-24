@@ -1,0 +1,295 @@
+{
+  "info": {
+    "name": "Booking System API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "basic",
+    "basic": [
+      { "key": "username", "value": "{{username}}", "type": "string" },
+      { "key": "password", "value": "{{password}}", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost" },
+    { "key": "username",  "value": "ivan.romero" },
+    { "key": "password",  "value": "worker123" }
+  ],
+  "item": [
+    {
+      "name": "Resources",
+      "item": [
+        {
+          "name": "List all resources",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/resources"
+          }
+        },
+        {
+          "name": "Get single resource",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/resources/1"
+          }
+        },
+        {
+          "name": "Availability — SALA HOUR (non-shared)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/resources/1/availability?date=2026-05-10"
+          }
+        },
+        {
+          "name": "Availability — SALA HOUR (shared capacity)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/resources/3/availability?date=2026-05-10"
+          }
+        },
+        {
+          "name": "Availability — VEHICULO DAY",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/resources/5/availability?date=2026-05-10"
+          }
+        },
+        {
+          "name": "Availability — missing date param (400)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/resources/1/availability"
+          }
+        },
+        {
+          "name": "Availability — invalid date format (400)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/resources/1/availability?date=10-05-2026"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reservations — Worker (ivan.romero / worker123)",
+      "item": [
+        {
+          "name": "List my reservations",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/reservations"
+          }
+        },
+        {
+          "name": "Create reservation — SALA HOUR",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/reservations",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resource_id\": 1,\n  \"start_at\": \"2026-05-10T09:00:00Z\",\n  \"end_at\": \"2026-05-10T11:00:00Z\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create reservation — SALA HOUR shared (with quantity)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/reservations",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resource_id\": 3,\n  \"start_at\": \"2026-05-10T10:00:00Z\",\n  \"end_at\": \"2026-05-10T12:00:00Z\",\n  \"quantity\": 4\n}"
+            }
+          }
+        },
+        {
+          "name": "Create reservation — VEHICULO DAY",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/reservations",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resource_id\": 5,\n  \"start_at\": \"2026-05-12T00:00:00Z\",\n  \"end_at\": \"2026-05-14T00:00:00Z\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create reservation — EQUIPAMIENTO DAY",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/reservations",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resource_id\": 10,\n  \"start_at\": \"2026-05-15T00:00:00Z\",\n  \"end_at\": \"2026-05-16T00:00:00Z\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Worker tries to set status=ACEPTADO (400)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/reservations",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resource_id\": 2,\n  \"start_at\": \"2026-05-10T14:00:00Z\",\n  \"end_at\": \"2026-05-10T15:00:00Z\",\n  \"status\": \"ACEPTADO\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Conflict — overlapping HORA reservation (400)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/reservations",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resource_id\": 1,\n  \"start_at\": \"2026-05-10T10:00:00Z\",\n  \"end_at\": \"2026-05-10T12:00:00Z\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Conflict — shared capacity exceeded (400)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/reservations",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resource_id\": 3,\n  \"start_at\": \"2026-05-10T10:00:00Z\",\n  \"end_at\": \"2026-05-10T12:00:00Z\",\n  \"quantity\": 8\n}"
+            }
+          }
+        },
+        {
+          "name": "DAY booking with non-midnight time (400)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/reservations",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resource_id\": 5,\n  \"start_at\": \"2026-05-12T09:00:00Z\",\n  \"end_at\": \"2026-05-13T09:00:00Z\"\n}"
+            }
+          }
+        },
+        {
+          "name": "HOUR booking spanning two days (400)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/reservations",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resource_id\": 1,\n  \"start_at\": \"2026-05-10T23:00:00Z\",\n  \"end_at\": \"2026-05-11T01:00:00Z\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Cancel reservation (DELETE)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/reservations/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reservations — Manager (admin / manager123)",
+      "auth": {
+        "type": "basic",
+        "basic": [
+          { "key": "username", "value": "admin", "type": "string" },
+          { "key": "password", "value": "manager123", "type": "string" }
+        ]
+      },
+      "item": [
+        {
+          "name": "List ALL reservations",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/reservations"
+          }
+        },
+        {
+          "name": "Approve reservation (PATCH status)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/reservations/1",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ACEPTADO\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Deny reservation (PATCH status)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/reservations/1",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"DENEGADO\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Manager creates reservation — auto ACEPTADO",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/reservations",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resource_id\": 2,\n  \"start_at\": \"2026-05-10T14:00:00Z\",\n  \"end_at\": \"2026-05-10T16:00:00Z\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Manager books over pending reservation",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/reservations",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resource_id\": 1,\n  \"start_at\": \"2026-05-10T09:00:00Z\",\n  \"end_at\": \"2026-05-10T11:00:00Z\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth errors",
+      "item": [
+        {
+          "name": "No credentials (401)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": "{{base_url}}/resources"
+          }
+        },
+        {
+          "name": "Wrong password (401)",
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                { "key": "username", "value": "ivan.romero", "type": "string" },
+                { "key": "password", "value": "wrongpassword", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "url": "{{base_url}}/resources"
+          }
+        }
+      ]
+    }
+  ]
+}
