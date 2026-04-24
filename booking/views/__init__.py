@@ -1,4 +1,4 @@
-from .reservation_views import ReservationViewSet
-from .resource_views import ResourceViewSet
+from .reservation import ReservationViewSet
+from .resource import ResourceViewSet
 
 __all__ = ["ReservationViewSet", "ResourceViewSet"]

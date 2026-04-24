@@ -2,44 +2,11 @@ from __future__ import annotations
 
 from rest_framework import serializers
 
-from .models import Reservation, Resource, User
-from .services import ensure_no_conflicts, validate_reservation_window, create_reservation, update_reservation
+from booking.models import Reservation, Resource
+from booking.services import create_reservation, ensure_no_conflicts, update_reservation, validate_reservation_window
 
-
-class UserSerializer(serializers.ModelSerializer):
-    role = serializers.SerializerMethodField()
-
-    class Meta:
-        model = User
-        fields = ["id", "username", "role", "created_at"]
-
-    def get_role(self, obj):
-        return obj.role
-
-
-class ResourceSerializer(serializers.ModelSerializer):
-    attributes = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Resource
-        fields = [
-            "id",
-            "nombre",
-            "descripcion",
-            "resource_type",
-            "booking_unit",
-            "image_url",
-            "attributes",
-            "created_at",
-            "updated_at",
-        ]
-
-    def get_attributes(self, obj: Resource) -> dict:
-        attributes = dict(obj.metadata or {})
-        if obj.resource_type == Resource.Type.SALA:
-            attributes["capacity"] = obj.capacity
-            attributes["shared_capacity"] = obj.shared_capacity
-        return attributes
+from .resource import ResourceSerializer
+from .user import UserSerializer
 
 
 class ReservationReadSerializer(serializers.ModelSerializer):
@@ -133,5 +100,3 @@ class ReservationWriteSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         user = self.context["request"].user
         return update_reservation(reservation=instance, validated_data=validated_data, acting_user=user)
-
-
